@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { Phone, Mail, MapPin, ChevronDown } from "lucide-react";
 
-export default function NetworkSignupSection() {
 
-  const emptyForm = {
+export default function NetworkSignupSection() {
+  const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     city: "",
-  };
-
-  const [formData, setFormData] = useState(emptyForm);
+  });
 
   /* Load Razorpay script */
   useEffect(() => {
@@ -33,19 +31,17 @@ export default function NetworkSignupSection() {
     }
 
     const options = {
-      key: "", // 🔴 replace with your key
-      amount: 2500 * 100, // ₹2500 in paise
+      key: "rzp_test_8sKJHd9xxx", // 🔴 replace with your key
+      amount: 2500 * 100, // in paise
       currency: "INR",
-      name: "SpaceandBeauty",
+      name: "Your Brand Name",
       description: "Lifetime Membership",
       image: "/logo.png",
 
       handler: function (response) {
         console.log("Payment Success:", response.razorpay_payment_id);
         alert("Payment successful!");
-
-        // CLEAR FORM AFTER SUCCESS
-        setFormData(emptyForm);
+        // You can redirect or save data here
       },
 
       prefill: {
@@ -61,12 +57,6 @@ export default function NetworkSignupSection() {
       theme: {
         color: "#FF566D",
       },
-
-      modal: {
-        ondismiss: function () {
-          console.log("Payment popup closed");
-        },
-      },
     };
 
     const razorpay = new window.Razorpay(options);
@@ -74,7 +64,7 @@ export default function NetworkSignupSection() {
   };
 
   return (
-    <section id="form-section" className="bg-bg-light py-24 relative overflow-hidden">
+    <section id="form-section" className="bg-bg-light py-24 relative overflow-hidden" >
       {/* Background */}
       <img
         src="https://api.builder.io/api/v1/image/assets/TEMP/4e8681ceb490e005277a4d396b58edee067b55f5?width=2912"
@@ -84,7 +74,6 @@ export default function NetworkSignupSection() {
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-24 relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-
           {/* Left */}
           <div className="space-y-8">
             <h2 className="font-manrope text-5xl md:text-6xl font-bold text-text-dark leading-tight">
@@ -154,13 +143,10 @@ export default function NetworkSignupSection() {
             <button
               onClick={handlePayment}
               type="button"
-              className="w-full py-4 rounded-full bg-gradient-primary text-white font-visby font-medium text-base md:text-xl hover:opacity-90 transition"
+              className="w-full py-4 rounded-full bg-gradient-primary text-white font-visby font-medium text-base md:text-xl hover:opacity-90 transition "
             >
-              <span className="gradient-text1">
-                Life-Time Membership @ ₹2500
-              </span>
+              <span className="gradient-text1">Life-Time Membership @ ₹2500</span>
             </button>
-
           </div>
         </div>
       </div>

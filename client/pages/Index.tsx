@@ -13,9 +13,6 @@ import TestimonialSlider from "@/components/ui/TestimonialSlider";
 import WhyUs from "@/components/ui/whyus";
 import MobileMenu from "@/components/ui/MobileMenu";
 import NetworkSignupSection from "@/components/ui/NetworkSignupSection";
-import { BrowserRouter } from "react-router-dom";
-
-
 
 export default function Index() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -143,7 +140,6 @@ export default function Index() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button> */}
-          
 <MobileMenu/>
         </div>
       </header>
