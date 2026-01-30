@@ -13,22 +13,86 @@ export default function NetworkSignupSection() {
 
   /* List of cities for suggestions */
   const cities = [
-    "Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore",
-    "Dharmapuri","Dindigul","Erode","Kallakurichi","Kanchipuram",
-    "Kanyakumari","Karur","Krishnagiri","Madurai","Nagapattinam",
-    "Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram",
-    "Ranipet","Salem","Sivaganga","Tenkasi","Thanjavur","Theni",
-    "Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupattur",
-    "Tiruppur","Tiruvallur","Tiruvarur","Vellore","Viluppuram",
-    "Virudhunagar","Kallakurichi","Thane","Bangalore","Mumbai",
-    "Kolkata","Hyderabad","Ahmedabad","Pune","Gautam Buddh Nagar",
-    "Gurugram","Rangareddy","Dakshina Kannada","Delhi","Jaipur",
-    "Lucknow","Kanpur Nagar","Agra","Vadodara","Surat",
-    "Visakhapatnam","Thiruvananthapuram","Ernakulam","Nagpur",
-    "Indore","Bhopal","Patna","Varanasi","Howrah","Guwahati",
-    "Ranchi","Jabalpur","Cuttack","Bhubaneswar","Raipur",
-    "Nagaland","Shimla","Dehradun","Gwalior","Patiala",
-    "Amritsar","Jalandhar","Hoshiarpur","Kolkata"
+  "Ariyalur",
+  "Chengalpattu",
+  "Chennai",
+  "Coimbatore",
+  "Cuddalore",
+  "Dharmapuri",
+  "Dindigul",
+  "Erode",
+  "Kallakurichi",
+  "Kanchipuram",
+  "Kanyakumari",
+  "Karur",
+  "Krishnagiri",
+  "Madurai",
+  "Nagapattinam",
+  "Namakkal",
+  "Nilgiris",
+  "Perambalur",
+  "Pudukkottai",
+  "Ramanathapuram",
+  "Ranipet",
+  "Salem",
+  "Sivaganga",
+  "Tenkasi",
+  "Thanjavur",
+  "Theni",
+  "Thoothukudi",
+  "Tiruchirappalli",
+  "Tirunelveli",
+  "Tirupattur",
+  "Tiruppur",
+  "Tiruvallur",
+  "Tiruvarur",
+  "Vellore",
+  "Viluppuram",
+  "Virudhunagar",
+  "Kallakurichi",
+  "Thane",            
+  "Bangalore",  
+  "Mumbai",   
+  "Kolkata",     
+  "Hyderabad",       
+  "Ahmedabad",          
+  "Pune",                
+  "Gautam Buddh Nagar",  
+  "Gurugram",           
+  "Rangareddy",          
+  "Dakshina Kannada",    
+  "Delhi",     
+  "Jaipur",        
+  "Lucknow",             
+  "Kanpur Nagar",        
+  "Agra",                
+  "Vadodara",           
+  "Surat",               
+  "Visakhapatnam",       
+  "Thiruvananthapuram",  
+  "Ernakulam",           
+  "Nagpur",             
+  "Indore",            
+  "Bhopal",              
+  "Patna",              
+  "Varanasi",            
+  "Howrah",              
+  "Guwahati", 
+  "Ranchi",              
+  "Jabalpur",            
+  "Cuttack",             
+  "Bhubaneswar",
+  "Raipur",             
+  "Nagaland",    
+  "Shimla",            
+  "Dehradun",            
+  "Gwalior",             
+  "Patiala",             
+  "Amritsar",            
+  "Jalandhar",           
+  "Hoshiarpur",          
+  "Kolkata",      
+  
   ];
 
   /* Load Razorpay script */
@@ -87,7 +151,7 @@ export default function NetworkSignupSection() {
     }
 
     const options = {
-      key: "rzp_live_S9bksWa04mgxRd",
+      key: "rzp_live_S9bksWa04mgxRd", // replace with your key id
       amount: 1 * 100,
       currency: "INR",
       name: "SPACE AND BEAUTY CLUB",
@@ -96,27 +160,8 @@ export default function NetworkSignupSection() {
         "https://spaceandbeauty.com/cdn/shop/files/PNG_Black_copy.png?v=1767685453&width=100",
 
       /* SUCCESS */
-      handler: async function (response) {
+      handler: function (response) {
         console.log("Payment Success:", response.razorpay_payment_id);
-
-        try {
-          await fetch("/api/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              city: formData.city,
-              paymentId: response.razorpay_payment_id,
-              amount: "1",
-              status: "success",
-            }),
-          });
-        } catch (err) {
-          console.error("Submit Error:", err);
-        }
-
         clearAndReload();
       },
 
@@ -148,6 +193,7 @@ export default function NetworkSignupSection() {
 
   return (
     <section id="form-section" className="bg-bg-light py-24 relative overflow-hidden">
+      {/* Background */}
       <img
         src="https://api.builder.io/api/v1/image/assets/TEMP/4e8681ceb490e005277a4d396b58edee067b55f5?width=2912"
         alt="Background"
@@ -156,7 +202,7 @@ export default function NetworkSignupSection() {
 
       <div className="max-w-[1440px] mx-auto px-6 md:px-24 relative z-10">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-
+          {/* Left */}
           <div className="space-y-8">
             <h2 className="font-manrope text-5xl md:text-6xl font-bold text-text-dark leading-tight">
               Your network is waiting for you.
@@ -168,6 +214,7 @@ export default function NetworkSignupSection() {
             </p>
           </div>
 
+          {/* Right – Form */}
           <div className="bg-white rounded-[30px] border border-[#CD9A9A] shadow-lg p-10 space-y-6">
 
             <InputField
@@ -229,13 +276,14 @@ export default function NetworkSignupSection() {
                         setCitySuggestions([]);
                       }
                     }}
-                    placeholder="Chennai, TamilNadu"
+                    placeholder="Chennai, Tamil Nadu"
                     className="w-full font-visby text-lg font-medium text-black placeholder-gray-400 outline-none"
                   />
                 </div>
                 <ChevronDown className="w-5 h-5 text-black" />
               </div>
 
+              {/* Suggestions */}
               {citySuggestions.length > 0 && (
                 <div className="absolute w-full bg-white border rounded-xl mt-2 max-h-40 overflow-y-auto z-20">
                   {citySuggestions.map((city, i) => (
@@ -254,6 +302,7 @@ export default function NetworkSignupSection() {
               )}
             </div>
 
+            {/* CTA */}
             <button
               onClick={handlePayment}
               type="button"
@@ -268,6 +317,7 @@ export default function NetworkSignupSection() {
   );
 }
 
+/* Reusable Input */
 function InputField({ label, value, onChange, placeholder, icon }) {
   return (
     <div className="flex items-center gap-4 px-4 py-3 rounded-2xl border border-gray-300">
@@ -287,6 +337,7 @@ function InputField({ label, value, onChange, placeholder, icon }) {
   );
 }
 
+/* Name Icon */
 function UserIcon() {
   return (
     <svg className="w-6 h-6" viewBox="0 0 21 21" fill="none">
