@@ -88,7 +88,7 @@ export default function NetworkSignupSection() {
 
     const options = {
       key: "rzp_live_S9bksWa04mgxRd",
-      amount: 2500 * 100,
+      amount: 1 * 100,
       currency: "INR",
       name: "SPACE AND BEAUTY CLUB",
       description: "Lifetime Membership",
