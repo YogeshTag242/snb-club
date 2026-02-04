@@ -204,7 +204,7 @@ export default function Index() {
                 <Brain className="w-6 h-6 text-text-dark/60" />
               </div>
               <h3 className="font-kraskario text-3xl capitalize text-center">Problem Solving</h3>
-              <p className="text-base text-center text-text-dark/70 font-semibold">
+              <p className="text-base text-center text-text-dark/50 font-semibold">
                 Navigate life's everyday challenges with clarity.
               </p>
             </div>
@@ -300,7 +300,7 @@ export default function Index() {
                 <Brain className="w-6 h-6 text-text-dark/60" />
               </div>
               <h3 className="font-kraskario text-3xl capitalize text-center">Problem Solving</h3>
-              <p className="text-base text-center text-text-dark/70 font-semibold">
+              <p className="text-base text-center text-text-dark/50 font-semibold ">
                 Navigate life's everyday challenges with clarity.
               </p>
             </div>
@@ -342,7 +342,7 @@ export default function Index() {
 
 
       <WhyUs/>
-      {/* We Can Help Transform You Section */}
+     
      
 
       {/* Connection Built on Trust Section */}
@@ -618,10 +618,10 @@ export default function Index() {
 
 <div className="absolute inset-x-0 top-[65%] -translate-y-1/2 z-10 overflow-hidden pointer-events-none">
   <div className="whitespace-nowrap animate-slide-left">
-    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black/10">
+    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black opacity-5">
       Connect . Belong . Inspire . Thrive
     </span>
-    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black/10">
+    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black opacity-5">
       Connect . Belong . Inspire . Thrive
     </span>
   </div>
@@ -630,10 +630,10 @@ export default function Index() {
 {/* Line 2 – Left to Right */}
 <div className="absolute inset-x-0 top-[80%] -translate-y-1/2 z-10 overflow-hidden pointer-events-none">
   <div className="whitespace-nowrap animate-slide-right">
-    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black/10">
+    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black opacity-5">
       Connect . Belong . Inspire . Thrive
     </span>
-    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black/10">
+    <span className="text-[128px] font-manrope font-bold uppercase inline-block px-8 text-black opacity-5">
       Connect . Belong . Inspire . Thrive
     </span>
   </div>

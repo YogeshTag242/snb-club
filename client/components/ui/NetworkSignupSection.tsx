@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Phone, Mail, MapPin, ChevronDown } from "lucide-react";
 
+
+
 export default function NetworkSignupSection() {
   const [formData, setFormData] = useState({
     name: "",
@@ -150,20 +152,43 @@ export default function NetworkSignupSection() {
       return;
     }
 
-    const options = {
+    const options = { 
       key: "rzp_live_S9bksWa04mgxRd", // replace with your key id
-      amount: 1 * 100,
+      amount: 2500 * 100,
       currency: "INR",
       name: "SPACE AND BEAUTY CLUB",
       description: "Lifetime Membership",
       image:
         "https://spaceandbeauty.com/cdn/shop/files/PNG_Black_copy.png?v=1767685453&width=100",
 
-      /* SUCCESS */
-      handler: function (response) {
-        console.log("Payment Success:", response.razorpay_payment_id);
-        clearAndReload();
-      },
+     handler: async function (response: {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}) {
+  const res = await fetch("/api/verify-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      city: formData.city,
+      amount: 2500,
+      razorpay_payment_id: response.razorpay_payment_id,
+      razorpay_order_id: response.razorpay_order_id,
+      razorpay_signature: response.razorpay_signature,
+    }),
+  });
+
+  const data: { success: boolean } = await res.json();
+
+  if (data.success) {
+    clearAndReload();
+  } else {
+    alert("Payment verification failed. Contact support.");
+  }
+},
 
       /* CANCEL / FAILURE */
       modal: {
@@ -190,6 +215,10 @@ export default function NetworkSignupSection() {
     const razorpay = new window.Razorpay(options);
     razorpay.open();
   };
+
+
+
+  
 
   return (
     <section id="form-section" className="bg-bg-light py-24 relative overflow-hidden">

@@ -66,7 +66,7 @@ export default function HeroSection() {
               </defs>
 
               <image
-                href="../banner-image.png"
+                href="../banner.png"
                 width="100%"
                 height="100%"
                 preserveAspectRatio="xMidYMid slice"
@@ -76,7 +76,7 @@ export default function HeroSection() {
             </svg>
 
             {/* FLOATING GLASS CARD */}
-            <div className="absolute bottom-6 sm:bottom-10 md:bottom-16 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-56 sm:w-64 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg flex flex-col gap-3">
+            <div className="absolute bottom-6 sm:bottom-10 md:bottom-16 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 w-56 sm:w-64 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg flex flex-col gap-3 animate-float-slow">
               <p className="text-lg font-bold text-black/90">Join Once</p>
 
               <div className="inline-flex items-center justify-center px-2 py-1 rounded-full bg-gradient-to-r from-[#FF5C7A] to-[#FF8AA0] text-white font-bold text-lg">
