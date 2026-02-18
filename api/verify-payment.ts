@@ -11,54 +11,47 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
   try {
     const {
-      name,
-      phone,
-      email,
-      city,
-      amount,
-      razorpay_payment_id,
       razorpay_order_id,
+      razorpay_payment_id,
       razorpay_signature,
+      userId,
     } = req.body;
-
-    const secret = process.env.RAZORPAY_KEY_SECRET!;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
     const expectedSignature = crypto
-      .createHmac("sha256", secret)
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
       .update(body.toString())
       .digest("hex");
 
-    const isAuthentic = expectedSignature === razorpay_signature;
-
-    if (!isAuthentic) {
+    if (expectedSignature !== razorpay_signature) {
       return res.status(400).json({ success: false });
     }
 
-    // ✅ Insert into Supabase
-    const { error } = await supabase.from("users").insert([
-      {
-        name,
-        email,
-        phone,
-        city,
-        amount,
+    // ✅ Update Supabase record
+    const { error } = await supabase
+      .from("users")
+      .update({
         payment_status: "success",
         payment_id: razorpay_payment_id,
-      },
-    ]);
+      })
+      .eq("id", userId);
 
     if (error) {
-      console.error("Supabase error:", error);
-      return res.status(500).json({ success: false });
+      console.error("Supabase Update Error:", error);
+      return res.status(400).json({ error: error.message });
     }
 
     return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false });
+
+  } catch (err: any) {
+    console.error("Verify Error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }
