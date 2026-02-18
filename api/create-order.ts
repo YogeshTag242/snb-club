@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import Razorpay from "razorpay";
 import { createClient } from "@supabase/supabase-js";
 
@@ -18,7 +18,7 @@ export default async function handler(
   try {
     const { name, email, phone, city, amount } = req.body;
 
-    // ✅ Insert user as pending
+    // Insert pending user
     const { data, error } = await supabase
       .from("users")
       .insert([
@@ -35,7 +35,7 @@ export default async function handler(
       .single();
 
     if (error) {
-      console.error("Supabase Insert Error:", error);
+      console.error(error);
       return res.status(400).json({ error: error.message });
     }
 
@@ -44,9 +44,8 @@ export default async function handler(
       key_secret: process.env.RAZORPAY_KEY_SECRET!,
     });
 
-    // ✅ FIXED HERE
     const order = await razorpay.orders.create({
-      amount: amount * 100, // convert to paise correctly
+      amount: amount * 100,
       currency: "INR",
       receipt: data.id.toString(),
     });
@@ -54,11 +53,9 @@ export default async function handler(
     return res.status(200).json({
       orderId: order.id,
       userId: data.id,
-      amount: order.amount,
     });
-
   } catch (err: any) {
-    console.error("Server Error:", err);
+    console.error("CREATE ORDER ERROR:", err);
     return res.status(500).json({ error: err.message });
   }
 }

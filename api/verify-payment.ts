@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
@@ -17,25 +17,24 @@ export default async function handler(
 
   try {
     const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
       userId,
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
     } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-      .update(body.toString())
+      .update(body)
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
       return res.status(400).json({ success: false });
     }
 
-    // ✅ Update Supabase record
-    const { error } = await supabase
+    await supabase
       .from("users")
       .update({
         payment_status: "success",
@@ -43,15 +42,9 @@ export default async function handler(
       })
       .eq("id", userId);
 
-    if (error) {
-      console.error("Supabase Update Error:", error);
-      return res.status(400).json({ error: error.message });
-    }
-
     return res.status(200).json({ success: true });
-
   } catch (err: any) {
-    console.error("Verify Error:", err);
+    console.error("VERIFY ERROR:", err);
     return res.status(500).json({ error: err.message });
   }
 }
