@@ -340,11 +340,8 @@ export default function Index() {
         </div>
       </section>
 
-
       <WhyUs/>
      
-     
-
       {/* Connection Built on Trust Section */}
       <section className="bg-bg-light  md:py-24">
   <div className="max-w-[1440px] mx-auto px-6 md:px-16 grid md:grid-cols-2 gap-20 items-center">

@@ -154,7 +154,7 @@ export default function NetworkSignupSection() {
 
     const options = { 
       key: "rzp_live_S9bksWa04mgxRd", // replace with your key id
-      amount: 2500 * 100,
+      amount: 1 * 100,
       currency: "INR",
       name: "SPACE AND BEAUTY CLUB",
       description: "Lifetime Membership",
@@ -174,7 +174,7 @@ export default function NetworkSignupSection() {
       phone: formData.phone,
       email: formData.email,
       city: formData.city,
-      amount: 2500,
+      amount: 1,
       razorpay_payment_id: response.razorpay_payment_id,
       razorpay_order_id: response.razorpay_order_id,
       razorpay_signature: response.razorpay_signature,
