@@ -2,13 +2,13 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
-  console.log("🔥 API HIT");
-  console.log("Method:", req.method);
+// Supabase admin client — service role key bypasses RLS for trusted writes
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -19,81 +19,57 @@ export default async function handler(
       phone,
       email,
       city,
-      amount,
       razorpay_payment_id,
       razorpay_order_id,
       razorpay_signature,
     } = req.body;
 
-    console.log("📦 Request Body:", req.body);
-
-    // ✅ Check required env variables
-    if (
-      !process.env.SUPABASE_URL ||
-      !process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      !process.env.RAZORPAY_SECRET
-    ) {
-      console.error("❌ Missing environment variables");
-      return res.status(500).json({ success: false });
-    }
-
-    // ✅ Check required fields
-    if (
-      !name ||
-      !phone ||
-      !email ||
-      !razorpay_payment_id ||
-      !razorpay_order_id ||
-      !razorpay_signature
-    ) {
-      console.error("❌ Missing required fields");
-      return res.status(400).json({ success: false });
-    }
-
-    // ✅ Verify Razorpay signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_SECRET)
-      .update(body)
+    // ✅ STEP 1: Verify signature to confirm payment is genuine
+    // Razorpay signs the payment using: order_id + "|" + payment_id
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    if (expectedSignature !== razorpay_signature) {
-      console.error("❌ Signature mismatch");
-      return res.status(400).json({ success: false });
+    if (generatedSignature !== razorpay_signature) {
+      // Signature mismatch = payment is fake or tampered
+      return res.status(400).json({
+        success: false,
+        error: "Payment signature verification failed. Possible fraud attempt.",
+      });
     }
 
-    console.log("✅ Signature verified");
-
-    // ✅ Create Supabase client INSIDE function
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // ✅ Insert into Supabase
-    const { data, error } = await supabase.from("members").insert([
+    // ✅ STEP 2: Signature matched — save everything to Supabase
+    const { error: dbError } = await supabase.from("members").insert([
       {
         name,
         phone,
         email,
         city,
-        amount,
         razorpay_payment_id,
         razorpay_order_id,
+        razorpay_signature,
+        amount: 2500,        // ₹2500 (store in rupees for readability)
+        amount_paise: 250000, // 250000 paise
+        status: "success",
+        // created_at is auto-set by Supabase if you add it as default: now()
       },
     ]);
 
-    if (error) {
-      console.error("❌ Supabase Insert Error:", error);
-      return res.status(500).json({ success: false });
+    if (dbError) {
+      console.error("Supabase insert error:", dbError);
+      // Payment was real but DB failed — log it so you don't lose the record
+      return res.status(500).json({
+        success: false,
+        error: "Payment verified but failed to save. Contact support with payment ID: " + razorpay_payment_id,
+      });
     }
 
-    console.log("✅ Data inserted successfully:", data);
-
+    // ✅ All done!
     return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("❌ Server Error:", err);
-    return res.status(500).json({ success: false });
+
+  } catch (err: any) {
+    console.error("Verify payment error:", err);
+    return res.status(500).json({ success: false, error: err.message });
   }
 }
