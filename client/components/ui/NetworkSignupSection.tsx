@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Phone, Mail, MapPin, ChevronDown } from "lucide-react";
 
-
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function NetworkSignupSection() {
   const [formData, setFormData] = useState({
@@ -11,93 +15,15 @@ export default function NetworkSignupSection() {
     city: "",
   });
 
-  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
 
-  /* List of cities for suggestions */
   const cities = [
-  "Ariyalur",
-  "Chengalpattu",
-  "Chennai",
-  "Coimbatore",
-  "Cuddalore",
-  "Dharmapuri",
-  "Dindigul",
-  "Erode",
-  "Kallakurichi",
-  "Kanchipuram",
-  "Kanyakumari",
-  "Karur",
-  "Krishnagiri",
-  "Madurai",
-  "Nagapattinam",
-  "Namakkal",
-  "Nilgiris",
-  "Perambalur",
-  "Pudukkottai",
-  "Ramanathapuram",
-  "Ranipet",
-  "Salem",
-  "Sivaganga",
-  "Tenkasi",
-  "Thanjavur",
-  "Theni",
-  "Thoothukudi",
-  "Tiruchirappalli",
-  "Tirunelveli",
-  "Tirupattur",
-  "Tiruppur",
-  "Tiruvallur",
-  "Tiruvarur",
-  "Vellore",
-  "Viluppuram",
-  "Virudhunagar",
-  "Kallakurichi",
-  "Thane",            
-  "Bangalore",  
-  "Mumbai",   
-  "Kolkata",     
-  "Hyderabad",       
-  "Ahmedabad",          
-  "Pune",                
-  "Gautam Buddh Nagar",  
-  "Gurugram",           
-  "Rangareddy",          
-  "Dakshina Kannada",    
-  "Delhi",     
-  "Jaipur",        
-  "Lucknow",             
-  "Kanpur Nagar",        
-  "Agra",                
-  "Vadodara",           
-  "Surat",               
-  "Visakhapatnam",       
-  "Thiruvananthapuram",  
-  "Ernakulam",           
-  "Nagpur",             
-  "Indore",            
-  "Bhopal",              
-  "Patna",              
-  "Varanasi",            
-  "Howrah",              
-  "Guwahati", 
-  "Ranchi",              
-  "Jabalpur",            
-  "Cuttack",             
-  "Bhubaneswar",
-  "Raipur",             
-  "Nagaland",    
-  "Shimla",            
-  "Dehradun",            
-  "Gwalior",             
-  "Patiala",             
-  "Amritsar",            
-  "Jalandhar",           
-  "Hoshiarpur",          
-  "Kolkata",      
-  
+    "Chennai","Coimbatore","Madurai","Salem","Tiruppur",
+    "Mumbai","Bangalore","Delhi","Hyderabad","Kolkata",
+    "Pune","Ahmedabad","Jaipur","Lucknow","Nagpur"
   ];
 
-  /* Load Razorpay script */
+  /* Load Razorpay */
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -105,45 +31,36 @@ export default function NetworkSignupSection() {
     document.body.appendChild(script);
   }, []);
 
-  /* Validation functions */
-  const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
-  const validatePhone = (phone) => /^[0-9+\-\s]+$/.test(phone);
-  const validateEmail = (email) =>
+  const validateName = (name: string) => /^[A-Za-z\s]+$/.test(name);
+  const validatePhone = (phone: string) => /^[0-9+\-\s]+$/.test(phone);
+  const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  /* CLEAR + RELOAD */
   const clearAndReload = () => {
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      city: "",
-    });
+    setFormData({ name: "", phone: "", email: "", city: "" });
     setCitySuggestions([]);
-    setTimeout(() => {
-      window.location.reload();
-    }, 400);
+    setTimeout(() => window.location.reload(), 400);
   };
 
-  /* Razorpay handler */
-  const handlePayment = () => {
+  /* 🔥 UPDATED PROFESSIONAL PAYMENT FLOW */
+  const handlePayment = async () => {
     if (!formData.name || !formData.phone || !formData.email) {
       alert("Please fill all required fields");
       return;
     }
 
     if (!validateName(formData.name)) {
-      alert("Name should contain only alphabets");
+      alert("Invalid Name");
       return;
     }
 
     if (!validatePhone(formData.phone)) {
-      alert("Phone should contain only numbers or + -");
+      alert("Invalid Phone");
       return;
     }
 
     if (!validateEmail(formData.email)) {
-      alert("Enter valid email");
+      alert("Invalid Email");
       return;
     }
 
@@ -152,232 +69,160 @@ export default function NetworkSignupSection() {
       return;
     }
 
-    const options = { 
-      key: "rzp_live_S9bksWa04mgxRd", // replace with your key id
-      amount: 1 * 100,
-      currency: "INR",
-      name: "SPACE AND BEAUTY CLUB",
-      description: "Lifetime Membership",
-      image:
-        "https://spaceandbeauty.com/cdn/shop/files/PNG_Black_copy.png?v=1767685453&width=100",
+    try {
+      // ✅ STEP 1: Create order from backend
+      const orderRes = await fetch("/api/create-order", {
+        method: "POST",
+      });
 
-     handler: async function (response: {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}) {
-  const res = await fetch("/api/verify-payment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: formData.name,
-      phone: formData.phone,
-      email: formData.email,
-      city: formData.city,
-      amount: 1,
-      razorpay_payment_id: response.razorpay_payment_id,
-      razorpay_order_id: response.razorpay_order_id,
-      razorpay_signature: response.razorpay_signature,
-    }),
-  });
+      const orderData = await orderRes.json();
 
-  const data: { success: boolean } = await res.json();
+      if (!orderData.order_id) {
+        alert("Order creation failed");
+        return;
+      }
 
-  if (data.success) {
-    clearAndReload();
-  } else {
-    alert("Payment verification failed. Contact support.");
-  }
-},
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "SPACE AND BEAUTY CLUB",
+        description: "Lifetime Membership",
+        order_id: orderData.order_id, // VERY IMPORTANT
 
-      /* CANCEL / FAILURE */
-      modal: {
-        ondismiss: function () {
-          clearAndReload();
+        handler: async function (response: any) {
+          const verifyRes = await fetch("/api/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...formData,
+              amount: 2500,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            alert("Payment successful!");
+            clearAndReload();
+          } else {
+            alert("Payment verification failed.");
+          }
         },
-      },
 
-      prefill: {
-        name: formData.name,
-        email: formData.email,
-        contact: formData.phone,
-      },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone,
+        },
 
-      notes: {
-        city: formData.city,
-      },
+        notes: {
+          city: formData.city,
+        },
 
-      theme: {
-        color: "#FF566D",
-      },
-    };
+        theme: {
+          color: "#FF566D",
+        },
+      };
 
-    const razorpay = new window.Razorpay(options);
-    razorpay.open();
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Try again.");
+    }
   };
 
-
-
-  
-
   return (
-    <section id="form-section" className="bg-bg-light py-24 relative overflow-hidden">
-      {/* Background */}
-      <img
-        src="https://api.builder.io/api/v1/image/assets/TEMP/4e8681ceb490e005277a4d396b58edee067b55f5?width=2912"
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover opacity-1 pointer-events-none"
-      />
+    <section className="py-24">
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow">
+        <InputField
+          label="Name*"
+          value={formData.name}
+          onChange={(e: any) =>
+            setFormData({ ...formData, name: e.target.value })
+          }
+        />
 
-      <div className="max-w-[1440px] mx-auto px-6 md:px-24 relative z-10">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <div className="space-y-8">
-            <h2 className="font-manrope text-5xl md:text-6xl font-bold text-text-dark leading-tight">
-              Your network is waiting for you.
-            </h2>
+        <InputField
+          label="Phone*"
+          value={formData.phone}
+          onChange={(e: any) =>
+            setFormData({ ...formData, phone: e.target.value })
+          }
+        />
 
-            <p className="font-manrope text-xl text-text-light">
-              Join our exclusive lifetime membership and expand your
-              professional network with like-minded leaders.
-            </p>
-          </div>
+        <InputField
+          label="Email*"
+          value={formData.email}
+          onChange={(e: any) =>
+            setFormData({ ...formData, email: e.target.value })
+          }
+        />
 
-          {/* Right – Form */}
-          <div className="bg-white rounded-[30px] border border-[#CD9A9A] shadow-lg p-10 space-y-6">
-
-            <InputField
-              label="Name*"
-              placeholder="Jennifer Maddy"
-              value={formData.name}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (/^[A-Za-z\s]*$/.test(val)) {
-                  setFormData({ ...formData, name: val });
-                }
-              }}
-              icon={<UserIcon />}
-            />
-
-            <InputField
-              label="Phone Number with Country Code*"
-              placeholder="+91-9021-3424-20"
-              value={formData.phone}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (/^[0-9+\-\s]*$/.test(val)) {
-                  setFormData({ ...formData, phone: val });
-                }
-              }}
-              icon={<Phone className="w-5 h-5 text-pink-primary" />}
-            />
-
-            <InputField
-              label="Email*"
-              placeholder="jennifer@gmail.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
+        {/* City */}
+        <div className="mt-4">
+          <input
+            type="text"
+            value={formData.city}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData({ ...formData, city: value });
+              if (value.length >= 2) {
+                setCitySuggestions(
+                  cities.filter((c) =>
+                    c.toLowerCase().includes(value.toLowerCase())
+                  )
+                );
+              } else {
+                setCitySuggestions([]);
               }
-              icon={<Mail className="w-5 h-5 text-pink-primary " />}
-            />
+            }}
+            placeholder="Choose City"
+            className="w-full border p-3 rounded-lg"
+          />
 
-            {/* City */}
-            <div className="relative">
-              <div className="flex items-center gap-4 px-4 py-3 rounded-2xl border border-gray-300">
-                <MapPin className="w-5 h-5 text-pink-primary" />
-                <div className="flex-1">
-                  <label className="font-visby text-xs gradient-text font-medium block">
-                    Choose city
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({ ...formData, city: value });
-                      if (value.length >= 2) {
-                        const filtered = cities.filter((c) =>
-                          c.toLowerCase().includes(value.toLowerCase())
-                        );
-                        setCitySuggestions(filtered);
-                      } else {
-                        setCitySuggestions([]);
-                      }
-                    }}
-                    placeholder="Chennai, Tamil Nadu"
-                    className="w-full font-visby text-lg font-medium text-black placeholder-gray-400 outline-none"
-                  />
+          {citySuggestions.length > 0 && (
+            <div className="border mt-2 rounded-lg bg-white">
+              {citySuggestions.map((city, i) => (
+                <div
+                  key={i}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    setFormData({ ...formData, city });
+                    setCitySuggestions([]);
+                  }}
+                >
+                  {city}
                 </div>
-                <ChevronDown className="w-5 h-5 text-black" />
-              </div>
-
-              {/* Suggestions */}
-              {citySuggestions.length > 0 && (
-                <div className="absolute w-full bg-white border rounded-xl mt-2 max-h-40 overflow-y-auto z-20">
-                  {citySuggestions.map((city, i) => (
-                    <div
-                      key={i}
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                      onClick={() => {
-                        setFormData({ ...formData, city });
-                        setCitySuggestions([]);
-                      }}
-                    >
-                      {city}
-                    </div>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
-
-            {/* CTA */}
-            <button
-              onClick={handlePayment}
-              type="button"
-              className="w-full py-4 rounded-full bg-gradient-primary text-white font-visby font-medium text-base md:text-xl hover:opacity-90 transition "
-            >
-              <span className="gradient-text1">Life-Time Membership @ ₹2500</span>
-            </button>
-          </div>
+          )}
         </div>
+
+        <button
+          onClick={handlePayment}
+          className="w-full mt-6 py-4 bg-pink-500 text-white rounded-full"
+        >
+          Life-Time Membership @ ₹2500
+        </button>
       </div>
     </section>
   );
 }
 
-/* Reusable Input */
-function InputField({ label, value, onChange, placeholder, icon }) {
+function InputField({ label, value, onChange }: any) {
   return (
-    <div className="flex items-center gap-4 px-4 py-3 rounded-2xl border border-gray-300">
-      <div className="flex-1">
-        <label className="font-visby text-xs gradient-text font-medium block">
-          {label}
-        </label>
-        <input
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          className="w-full font-visby text-lg font-medium text-black placeholder-gray-400 outline-none"
-        />
-      </div>
-      {icon}
+    <div className="mt-4">
+      <label className="block text-sm font-medium">{label}</label>
+      <input
+        value={value}
+        onChange={onChange}
+        className="w-full border p-3 rounded-lg"
+      />
     </div>
-  );
-}
-
-/* Name Icon */
-function UserIcon() {
-  return (
-    <svg className="w-6 h-6" viewBox="0 0 21 21" fill="none">
-      <path d="M5.5 12.7C8.7 11.4 12.3 11.4 15.5 12.7" stroke="url(#grad)" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M10.5 2.5C12.7 2.5 14.4 4.2 14.4 6.4C14.4 8.6 12.7 10.3 10.5 10.3C8.3 10.3 6.6 8.6 6.6 6.4C6.6 4.2 8.3 2.5 10.5 2.5Z" stroke="url(#grad)" strokeWidth="1.8" strokeLinecap="round"/>
-      <defs>
-        <linearGradient id="grad" x1="0" y1="0" x2="21" y2="21">
-          <stop offset="0%" stopColor="#D14E9A" />
-          <stop offset="100%" stopColor="#FF566D" />
-        </linearGradient>
-      </defs>
-    </svg>
   );
 }
